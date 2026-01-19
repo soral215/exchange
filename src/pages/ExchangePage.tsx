@@ -150,11 +150,6 @@ const InputSuffix = styled.span`
   line-height: 1.33;
 `
 
-const InputSuffixNumber = styled.span`
-  font-size: 20px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-`
-
 const InputSuffixText = styled.span`
   font-size: 20px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
@@ -335,10 +330,11 @@ export function ExchangePage() {
     return () => clearTimeout(timer)
   }, [amount])
 
-  // 환율 조회
+  // 환율 조회 (10초마다 자동 갱신)
   const { data: exchangeRates = [] } = useQuery({
     queryKey: ['exchangeRates'],
     queryFn: exchangeRateService.getLatest,
+    refetchInterval: 10000,
   })
 
   // 지갑 조회
@@ -370,6 +366,7 @@ export function ExchangePage() {
       setAmount('')
       queryClient.invalidateQueries({ queryKey: ['wallets'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['exchangeRates'] })
     },
     onError: (error: Error & { response?: { data?: { code?: string; message?: string } } }) => {
       const errorMessage = error.response?.data?.message || '환전에 실패했습니다. 다시 시도해주세요.'
@@ -381,18 +378,49 @@ export function ExchangePage() {
     },
   })
 
-  const handleExchange = () => {
+  const handleExchange = async () => {
     if (!selectedRate || !amount || parseFloat(amount) <= 0) {
       alert('금액을 입력해주세요.')
       return
     }
 
-    orderMutation.mutate({
-      exchangeRateId: selectedRate.exchangeRateId,
-      fromCurrency: activeTab === 'buy' ? 'KRW' : selectedCurrency,
-      toCurrency: activeTab === 'buy' ? selectedCurrency : 'KRW',
-      forexAmount: parseFloat(amount),
-    })
+    try {
+      // 최신 환율 조회
+      const latestRates = await exchangeRateService.getLatest()
+      const latestRate = latestRates.find((r) => r.currency === selectedCurrency)
+
+      if (!latestRate) {
+        alert('환율 정보를 가져올 수 없습니다.')
+        return
+      }
+
+      // 화면에 최신 환율 즉시 반영
+      queryClient.setQueryData(['exchangeRates'], latestRates)
+
+      // 환율 변동 확인
+      if (latestRate.exchangeRateId !== selectedRate.exchangeRateId) {
+        const confirmed = window.confirm(
+          `환율이 변동되었습니다.\n\n` +
+          `이전: 1 ${selectedCurrency} = ${formatNumber(selectedRate.rate, 2)} 원\n` +
+          `현재: 1 ${selectedCurrency} = ${formatNumber(latestRate.rate, 2)} 원\n\n` +
+          `변동된 환율로 환전을 진행하시겠습니까?`
+        )
+
+        if (!confirmed) {
+          return
+        }
+      }
+
+      // 환전 주문 (최신 환율 사용)
+      orderMutation.mutate({
+        exchangeRateId: latestRate.exchangeRateId,
+        fromCurrency: activeTab === 'buy' ? 'KRW' : selectedCurrency,
+        toCurrency: activeTab === 'buy' ? selectedCurrency : 'KRW',
+        forexAmount: parseFloat(amount),
+      })
+    } catch {
+      alert('환율 정보를 가져오는데 실패했습니다.')
+    }
   }
 
   return (
