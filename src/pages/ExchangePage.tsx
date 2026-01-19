@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Header } from '@/components/organisms'
 import { Text, Card, Badge, Tabs, Button, Input, Dropdown } from '@/components/atoms'
+import { exchangeRateService, walletService } from '@/services'
+import { formatNumber } from '@/utils'
 import usFlag from '@/assets/flags/us.svg'
 import jpFlag from '@/assets/flags/jp.svg'
 
@@ -299,17 +302,18 @@ const FlagImage = styled.img<{ $hasBorder?: boolean }>`
   `}
 `
 
-// Mock 데이터
-const exchangeRates = [
-  { code: 'USD', name: '미국 달러', rate: '1,320.50', unit: 'KRW', change: 0.5, direction: 'up' as const },
-  { code: 'JPY', name: '일본 엔화', rate: '9.85', unit: 'KRW', change: -1.1, direction: 'down' as const },
-]
+// 통화 이름 매핑
+const currencyNames: Record<string, string> = {
+  USD: '미국 달러',
+  JPY: '일본 엔화',
+}
 
-const walletBalances = [
-  { currency: 'KRW', balance: '₩ 1,200,000' },
-  { currency: 'USD', balance: '$ 50.000' },
-  { currency: 'JPY', balance: '₩ 150.000' },
-]
+// 통화 기호 매핑
+const currencySymbols: Record<string, string> = {
+  KRW: '₩',
+  USD: '$',
+  JPY: '¥',
+}
 
 const currencyOptions = [
   { value: 'USD', label: 'USD 환전하기', icon: <FlagImage src={usFlag} alt="미국" />, optionLabel: '미국 USD' },
@@ -320,6 +324,18 @@ export function ExchangePage() {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy')
   const [amount, setAmount] = useState('')
   const [selectedCurrency, setSelectedCurrency] = useState('USD')
+
+  // 환율 조회
+  const { data: exchangeRates = [] } = useQuery({
+    queryKey: ['exchangeRates'],
+    queryFn: exchangeRateService.getLatest,
+  })
+
+  // 지갑 조회
+  const { data: walletData } = useQuery({
+    queryKey: ['wallets'],
+    queryFn: walletService.getWallets,
+  })
 
   return (
     <PageContainer>
@@ -338,14 +354,14 @@ export function ExchangePage() {
             {/* 환율 카드 */}
             <RateCardsContainer>
               {exchangeRates.map((rate) => (
-                <RateCard key={rate.code} variant="outlined">
+                <RateCard key={rate.exchangeRateId} variant="outlined">
                   <RateCardHeader>
-                    <CurrencyCode>{rate.code}</CurrencyCode>
-                    <CurrencyName>{rate.name}</CurrencyName>
+                    <CurrencyCode>{rate.currency}</CurrencyCode>
+                    <CurrencyName>{currencyNames[rate.currency] || rate.currency}</CurrencyName>
                   </RateCardHeader>
-                  <RateValue>{rate.rate} {rate.unit}</RateValue>
-                  <Badge variant={rate.direction}>
-                    {rate.direction === 'up' ? '+' : ''}{rate.change}%
+                  <RateValue>{formatNumber(rate.rate, 2)} KRW</RateValue>
+                  <Badge variant={rate.changePercentage >= 0 ? 'up' : 'down'}>
+                    {rate.changePercentage >= 0 ? '+' : ''}{rate.changePercentage}%
                   </Badge>
                 </RateCard>
               ))}
@@ -355,16 +371,18 @@ export function ExchangePage() {
             <WalletCard variant="filled">
               <WalletTitle>내 지갑</WalletTitle>
               <WalletList>
-                {walletBalances.map((item) => (
-                  <WalletItem key={item.currency}>
-                    <WalletCurrency>{item.currency}</WalletCurrency>
-                    <WalletBalance>{item.balance}</WalletBalance>
+                {walletData?.wallets.map((wallet) => (
+                  <WalletItem key={wallet.walletId}>
+                    <WalletCurrency>{wallet.currency}</WalletCurrency>
+                    <WalletBalance>
+                      {currencySymbols[wallet.currency] || ''} {formatNumber(wallet.balance, wallet.currency === 'KRW' ? 0 : 2)}
+                    </WalletBalance>
                   </WalletItem>
                 ))}
               </WalletList>
               <WalletTotal>
                 <WalletTotalLabel>총 보유 자산</WalletTotalLabel>
-                <WalletTotalValue>₩ 3,000,000</WalletTotalValue>
+                <WalletTotalValue>₩ {formatNumber(walletData?.totalKrwBalance || 0, 0)}</WalletTotalValue>
               </WalletTotal>
             </WalletCard>
           </LeftSection>
