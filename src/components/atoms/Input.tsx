@@ -3,8 +3,13 @@ import { forwardRef } from 'react'
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: boolean
+  errorMessage?: string
   fullWidth?: boolean
 }
+
+const InputWrapper = styled.div<{ $fullWidth?: boolean }>`
+  ${({ $fullWidth }) => $fullWidth && 'width: 100%;'}
+`
 
 const StyledInput = styled.input<{ $error?: boolean; $fullWidth?: boolean }>`
   height: 75px;
@@ -53,15 +58,26 @@ const StyledInput = styled.input<{ $error?: boolean; $fullWidth?: boolean }>`
   }
 `
 
+const ErrorMessage = styled.span`
+  display: block;
+  margin-top: 8px;
+  color: ${({ theme }) => theme.colors.error};
+  font-size: 14px;
+  line-height: 1.5;
+`
+
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ error, fullWidth = true, ...props }, ref) => {
+  ({ error, errorMessage, fullWidth = true, ...props }, ref) => {
     return (
-      <StyledInput
-        ref={ref}
-        $error={error}
-        $fullWidth={fullWidth}
-        {...props}
-      />
+      <InputWrapper $fullWidth={fullWidth}>
+        <StyledInput
+          ref={ref}
+          $error={error || !!errorMessage}
+          $fullWidth={fullWidth}
+          {...props}
+        />
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      </InputWrapper>
     )
   }
 )

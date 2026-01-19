@@ -220,6 +220,13 @@ const ExchangeInfoValue = styled(Text)`
 
 const ExchangeButton = styled(Button)``
 
+const InputErrorMessage = styled.div`
+  margin-top: 8px;
+  color: ${({ theme }) => theme.colors.error};
+  font-size: 14px;
+  line-height: 1.5;
+`
+
 // 내 지갑 섹션
 const WalletCard = styled(Card)`
   padding: 24px 32px;
@@ -310,6 +317,12 @@ const currencySymbols: Record<string, string> = {
   JPY: '¥',
 }
 
+// 통화별 최소 금액
+const minAmounts: Record<string, number> = {
+  USD: 1,
+  JPY: 100,
+}
+
 const currencyOptions = [
   { value: 'USD', label: 'USD 환전하기', icon: <FlagImage src={usFlag} alt="미국" />, optionLabel: '미국 USD' },
   { value: 'JPY', label: 'JPY 환전하기', icon: <FlagImage src={jpFlag} alt="일본" $hasBorder />, optionLabel: '일본 JPY' },
@@ -357,6 +370,46 @@ export function ExchangePage() {
       }),
     enabled: !!debouncedAmount && parseFloat(debouncedAmount) > 0,
   })
+
+  // 지갑 잔액 가져오기
+  const getWalletBalance = (currency: string) => {
+    const wallet = walletData?.wallets.find((w) => w.currency === currency)
+    return wallet?.balance || 0
+  }
+
+  // 금액 유효성 검사
+  const validateAmount = (): string | null => {
+    const numAmount = parseFloat(amount)
+    if (!amount || isNaN(numAmount) || numAmount <= 0) {
+      return null // 아직 입력 전
+    }
+
+    const minAmount = minAmounts[selectedCurrency] || 0.01
+
+    // 최소 금액 체크
+    if (numAmount < minAmount) {
+      return `최소 ${minAmount} ${selectedCurrency} 이상 입력해주세요.`
+    }
+
+    // 최대 금액 체크 (지갑 잔액 기준)
+    if (activeTab === 'buy') {
+      // 매수: KRW 잔액 체크 (견적 기준)
+      const krwBalance = getWalletBalance('KRW')
+      if (quoteData && quoteData.krwAmount > krwBalance) {
+        return `KRW 잔액이 부족합니다. (보유: ${formatNumber(krwBalance, 0)}원)`
+      }
+    } else {
+      // 매도: 외화 잔액 체크
+      const forexBalance = getWalletBalance(selectedCurrency)
+      if (numAmount > forexBalance) {
+        return `${selectedCurrency} 잔액이 부족합니다. (보유: ${formatNumber(forexBalance, 2)})`
+      }
+    }
+
+    return null
+  }
+
+  const amountError = validateAmount()
 
   // 환전 주문
   const orderMutation = useMutation({
@@ -506,6 +559,7 @@ export function ExchangePage() {
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       fullWidth
+                      error={!!amountError}
                     />
                     <InputSuffix>
                       <InputSuffixText>
@@ -513,6 +567,9 @@ export function ExchangePage() {
                       </InputSuffixText>
                     </InputSuffix>
                   </InputWrapper>
+                  {amountError && (
+                    <InputErrorMessage>{amountError}</InputErrorMessage>
+                  )}
                 </FormGroup>
 
                 <ExchangeArrow>
@@ -567,7 +624,7 @@ export function ExchangePage() {
                 size="lg"
                 fullWidth
                 onClick={handleExchange}
-                disabled={orderMutation.isPending || !amount || parseFloat(amount) <= 0}
+                disabled={orderMutation.isPending || !amount || parseFloat(amount) <= 0 || !!amountError}
               >
                 {orderMutation.isPending ? '환전 중...' : '환전하기'}
               </ExchangeButton>
