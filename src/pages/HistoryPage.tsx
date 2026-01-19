@@ -1,6 +1,9 @@
+import { useQuery } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Header } from '@/components/organisms'
 import { Text } from '@/components/atoms'
+import { orderService } from '@/services'
+import { formatNumber } from '@/utils'
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -98,21 +101,24 @@ const TableCell = styled.td`
   }
 `
 
-// Mock 데이터
-const historyData = [
-  { id: 10, date: '2025-10-05 00:00:00', buyAmount: '32.50', rate: '1,383.07', sellAmount: '51,976' },
-  { id: 9, date: '2025-10-05 00:00:00', buyAmount: '500', rate: '1,383.07', sellAmount: '699,690' },
-  { id: 8, date: '2025-10-05 00:00:00', buyAmount: '325.50', rate: '1,609.70', sellAmount: '454,734' },
-  { id: 7, date: '2025-10-05 00:00:00', buyAmount: '325.50', rate: '1,609.70', sellAmount: '454,734' },
-  { id: 6, date: '2025-10-05 00:00:00', buyAmount: '325.50', rate: '1,383.07', sellAmount: '454,734' },
-  { id: 5, date: '2025-10-05 00:00:00', buyAmount: '325.50', rate: '942.56', sellAmount: '454,734' },
-  { id: 4, date: '2025-10-05 00:00:00', buyAmount: '325.50', rate: '942.56', sellAmount: '454,734' },
-  { id: 3, date: '2025-10-05 00:00:00', buyAmount: '41,698', rate: '942.56', sellAmount: '30.00' },
-  { id: 2, date: '2025-10-05 00:00:00', buyAmount: '41,698', rate: '1,383.07', sellAmount: '30.00' },
-  { id: 1, date: '2025-10-05 00:00:00', buyAmount: '325.50', rate: '1,383.07', sellAmount: '454,734' },
-]
+const EmptyMessage = styled.div`
+  padding: 60px 24px;
+  text-align: center;
+  color: #646F7C;
+  font-size: 16px;
+`
+
+const formatDateTime = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toISOString().replace('T', ' ').slice(0, 19)
+}
 
 export function HistoryPage() {
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['orders'],
+    queryFn: orderService.getOrders,
+  })
+
   return (
     <PageContainer>
       <Header />
@@ -137,15 +143,29 @@ export function HistoryPage() {
                 </TableHeaderRow>
               </TableHead>
               <TableBody>
-                {historyData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.id}</TableCell>
-                    <TableCell>{item.date}</TableCell>
-                    <TableCell>{item.buyAmount}</TableCell>
-                    <TableCell>{item.rate}</TableCell>
-                    <TableCell>{item.sellAmount}</TableCell>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <EmptyMessage>로딩 중...</EmptyMessage>
+                    </TableCell>
                   </TableRow>
-                ))}
+                ) : orders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <EmptyMessage>환전 내역이 없습니다.</EmptyMessage>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  orders.map((order) => (
+                    <TableRow key={order.orderId}>
+                      <TableCell>{order.orderId}</TableCell>
+                      <TableCell>{formatDateTime(order.orderedAt)}</TableCell>
+                      <TableCell>{formatNumber(order.toAmount, 2)}</TableCell>
+                      <TableCell>{formatNumber(order.appliedRate, 2)}</TableCell>
+                      <TableCell>{formatNumber(order.fromAmount, 0)}</TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableWrapper>
