@@ -1,0 +1,25 @@
+export interface ApiResponse<T = unknown> {
+  code: string
+  message: string
+  data: T
+}
+
+export interface ValidationErrorData {
+  [field: string]: string
+}
+
+export type ApiErrorCode =
+  | 'BAD_REQUEST'
+  | 'NOT_FOUND'
+  | 'UNAUTHORIZED'
+  | 'VALIDATION_ERROR'
+  | 'MISSING_PARAMETER'
+  | 'WALLET_INSUFFICIENT_BALANCE'
+  | 'INVALID_DEPOSIT_AMOUNT'
+  | 'INVALID_WITHDRAW_AMOUNT'
+  | 'CURRENCY_MISMATCH'
+  | 'INVALID_AMOUNT_SCALE'
+  | 'EXCHANGE_RATE_CURRENCY_MISMATCH'
+  | 'UNSUPPORTED_FOREX_CONVERSION_CURRENCY'
+  | 'INVALID_EXCHANGE_RATE_CURRENCY'
+  | 'UNSUPPORTED_CURRENCY_FOR_KRW_CONVERSION'
