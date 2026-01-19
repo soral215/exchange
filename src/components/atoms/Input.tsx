@@ -60,7 +60,7 @@ const StyledInput = styled.input<{ $error?: boolean; $fullWidth?: boolean }>`
 
 const ErrorMessage = styled.span`
   display: block;
-  margin-top: 8px;
+  margin-top: 4px;
   color: ${({ theme }) => theme.colors.error};
   font-size: 14px;
   line-height: 1.5;

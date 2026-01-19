@@ -84,6 +84,16 @@ export const theme = {
     normal: '200ms ease',
     slow: '300ms ease',
   },
+
+  breakpoints: {
+    mobile: '768px',
+    tablet: '1024px',
+  },
+
+  media: {
+    mobile: '@media (max-width: 768px)',
+    tablet: '@media (max-width: 1024px)',
+  },
 } as const
 
 export type Theme = typeof theme

@@ -15,6 +15,11 @@ const StyledHeader = styled.header`
   padding: 16px 40px;
   background: ${({ theme }) => theme.colors.background.primary};
   border-bottom: 1px solid #D0D6DB;
+
+  ${({ theme }) => theme.media.mobile} {
+    height: 60px;
+    padding: 12px 16px;
+  }
 `
 
 const LeftSection = styled.div`
@@ -26,6 +31,16 @@ const RightSection = styled.div`
   display: flex;
   align-items: center;
   gap: 40px;
+
+  ${({ theme }) => theme.media.mobile} {
+    gap: 12px;
+  }
+`
+
+const NavTabWrapper = styled.div`
+  ${({ theme }) => theme.media.mobile} {
+    display: none;
+  }
 `
 
 const LogoutButton = styled(Button)`
@@ -33,6 +48,11 @@ const LogoutButton = styled(Button)`
   padding: 8px 12px;
   font-size: 16px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+
+  ${({ theme }) => theme.media.mobile} {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
 `
 
 const navItems = [
@@ -70,11 +90,13 @@ export function Header() {
       </LeftSection>
 
       <RightSection>
-        <NavTab
-          items={navItems}
-          activeKey={getActiveKey()}
-          onChange={handleTabChange}
-        />
+        <NavTabWrapper>
+          <NavTab
+            items={navItems}
+            activeKey={getActiveKey()}
+            onChange={handleTabChange}
+          />
+        </NavTabWrapper>
         <LogoutButton variant="primary" size="sm" onClick={handleLogout}>
           Log out
         </LogoutButton>

@@ -23,6 +23,10 @@ const TitleSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  ${({ theme }) => theme.media.mobile} {
+    padding: 24px 20px 12px 20px;
+  }
 `
 
 const PageTitle = styled(Text)`
@@ -30,6 +34,10 @@ const PageTitle = styled(Text)`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: #28323C;
   line-height: 1.33;
+
+  ${({ theme }) => theme.media.mobile} {
+    font-size: 28px;
+  }
 `
 
 const PageDescription = styled(Text)`
@@ -37,20 +45,33 @@ const PageDescription = styled(Text)`
   font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
   color: #374553;
   line-height: 1.33;
+
+  ${({ theme }) => theme.media.mobile} {
+    font-size: 14px;
+  }
 `
 
 const TableSection = styled.div`
   padding: 0 80px 50px 80px;
+
+  ${({ theme }) => theme.media.mobile} {
+    padding: 0 20px 30px 20px;
+  }
 `
 
 const TableWrapper = styled.div`
   border: 1px solid #D0D6DB;
   border-radius: 16px;
-  overflow: hidden;
+  overflow-x: auto;
+
+  ${({ theme }) => theme.media.mobile} {
+    border-radius: 12px;
+  }
 `
 
 const Table = styled.table`
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   background: ${({ theme }) => theme.colors.background.primary};
 `

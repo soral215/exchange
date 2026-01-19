@@ -26,6 +26,10 @@ const TitleSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  ${({ theme }) => theme.media.mobile} {
+    padding: 24px 20px 12px 20px;
+  }
 `
 
 const PageTitle = styled(Text)`
@@ -33,6 +37,10 @@ const PageTitle = styled(Text)`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: #28323C;
   line-height: 1.33;
+
+  ${({ theme }) => theme.media.mobile} {
+    font-size: 28px;
+  }
 `
 
 const PageDescription = styled(Text)`
@@ -40,6 +48,10 @@ const PageDescription = styled(Text)`
   font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
   color: #374553;
   line-height: 1.33;
+
+  ${({ theme }) => theme.media.mobile} {
+    font-size: 14px;
+  }
 `
 
 const MainContent = styled.div`
@@ -47,6 +59,12 @@ const MainContent = styled.div`
   flex: 1 1 auto;
   gap: 24px;
   padding: 0 80px 50px 80px;
+
+  ${({ theme }) => theme.media.mobile} {
+    flex-direction: column;
+    padding: 0 20px 30px 20px;
+    gap: 20px;
+  }
 `
 
 const LeftSection = styled.div`
@@ -54,6 +72,10 @@ const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  ${({ theme }) => theme.media.mobile} {
+    gap: 16px;
+  }
 `
 
 const RightSection = styled.div`
@@ -61,6 +83,10 @@ const RightSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  ${({ theme }) => theme.media.mobile} {
+    gap: 16px;
+  }
 `
 
 // 환율 카드 섹션
@@ -187,7 +213,7 @@ const RequiredInputSuffix = styled.span<{ $isSell?: boolean }>`
 `
 
 const ExchangeInput = styled(Input)`
-  padding-right: 160px;
+  padding-right: 110px;
 `
 
 const ExchangeDivider = styled.hr`
@@ -233,6 +259,7 @@ const WalletCard = styled(Card)`
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 300px;
 `
 
 const WalletTitle = styled(Text)`
