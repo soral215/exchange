@@ -379,11 +379,11 @@ export function ExchangePage() {
     }
   }, [])
 
-  // 환율 조회 (10초마다 자동 갱신)
+  // 환율 조회 (1분마다 자동 갱신)
   const { data: exchangeRates = [], isLoading: isLoadingRates } = useQuery({
     queryKey: ['exchangeRates'],
     queryFn: exchangeRateService.getLatest,
-    refetchInterval: 10000,
+    refetchInterval: 60000,
   })
 
   // 지갑 조회
