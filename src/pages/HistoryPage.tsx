@@ -1,55 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Header } from '@/components/organisms'
-import { Text, SpinnerFullPage } from '@/components/atoms'
+import { SpinnerFullPage } from '@/components/atoms'
+import { PageContainer, ContentWrapper, TitleSection, PageTitle, PageDescription } from '@/components/templates'
 import { orderService } from '@/services'
 import { formatNumber } from '@/utils'
-
-const PageContainer = styled.div`
-  min-height: 100vh;
-  background: ${({ theme }) => theme.colors.background.primary};
-`
-
-const ContentWrapper = styled.main`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  max-width: 1440px;
-  margin: 0 auto;
-`
-
-const TitleSection = styled.div`
-  padding: 40px 80px 16px 80px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  ${({ theme }) => theme.media.mobile} {
-    padding: 24px 20px 12px 20px;
-  }
-`
-
-const PageTitle = styled(Text)`
-  font-size: 40px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: #28323C;
-  line-height: 1.33;
-
-  ${({ theme }) => theme.media.mobile} {
-    font-size: 28px;
-  }
-`
-
-const PageDescription = styled(Text)`
-  font-size: 16px;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.normal};
-  color: #374553;
-  line-height: 1.33;
-
-  ${({ theme }) => theme.media.mobile} {
-    font-size: 14px;
-  }
-`
 
 const TableSection = styled.div`
   padding: 0 80px 50px 80px;
