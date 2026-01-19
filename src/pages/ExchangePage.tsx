@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Header } from '@/components/organisms'
 import { Text, Card, Badge, Tabs, Button, Input, Dropdown } from '@/components/atoms'
-import { exchangeRateService, walletService } from '@/services'
+import { exchangeRateService, walletService, orderService } from '@/services'
 import { formatNumber } from '@/utils'
 import usFlag from '@/assets/flags/us.svg'
 import jpFlag from '@/assets/flags/jp.svg'
@@ -321,9 +321,19 @@ const currencyOptions = [
 ]
 
 export function ExchangePage() {
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy')
   const [amount, setAmount] = useState('')
   const [selectedCurrency, setSelectedCurrency] = useState('USD')
+  const [debouncedAmount, setDebouncedAmount] = useState('')
+
+  // 디바운스 처리
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedAmount(amount)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [amount])
 
   // 환율 조회
   const { data: exchangeRates = [] } = useQuery({
@@ -336,6 +346,54 @@ export function ExchangePage() {
     queryKey: ['wallets'],
     queryFn: walletService.getWallets,
   })
+
+  // 선택된 통화의 환율 정보
+  const selectedRate = exchangeRates.find((rate) => rate.currency === selectedCurrency)
+
+  // 견적 조회
+  const { data: quoteData } = useQuery({
+    queryKey: ['quote', selectedCurrency, debouncedAmount, activeTab],
+    queryFn: () =>
+      orderService.getQuote({
+        fromCurrency: activeTab === 'buy' ? 'KRW' : selectedCurrency,
+        toCurrency: activeTab === 'buy' ? selectedCurrency : 'KRW',
+        forexAmount: parseFloat(debouncedAmount) || 0,
+      }),
+    enabled: !!debouncedAmount && parseFloat(debouncedAmount) > 0,
+  })
+
+  // 환전 주문
+  const orderMutation = useMutation({
+    mutationFn: orderService.createOrder,
+    onSuccess: () => {
+      alert('환전이 완료되었습니다!')
+      setAmount('')
+      queryClient.invalidateQueries({ queryKey: ['wallets'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+    },
+    onError: (error: Error & { response?: { data?: { code?: string } } }) => {
+      if (error.response?.data?.code === 'EXCHANGE_RATE_MISMATCH') {
+        alert('환율이 변경되었습니다. 다시 시도해주세요.')
+        queryClient.invalidateQueries({ queryKey: ['exchangeRates'] })
+      } else {
+        alert('환전에 실패했습니다. 다시 시도해주세요.')
+      }
+    },
+  })
+
+  const handleExchange = () => {
+    if (!selectedRate || !amount || parseFloat(amount) <= 0) {
+      alert('금액을 입력해주세요.')
+      return
+    }
+
+    orderMutation.mutate({
+      exchangeRateId: selectedRate.exchangeRateId,
+      fromCurrency: activeTab === 'buy' ? 'KRW' : selectedCurrency,
+      toCurrency: activeTab === 'buy' ? selectedCurrency : 'KRW',
+      forexAmount: parseFloat(amount),
+    })
+  }
 
   return (
     <PageContainer>
@@ -422,9 +480,9 @@ export function ExchangePage() {
                       fullWidth
                     />
                     <InputSuffix>
-                      <InputSuffixNumber>30</InputSuffixNumber>
+                      <InputSuffixNumber>{amount || '0'}</InputSuffixNumber>
                       <InputSuffixText>
-                        달러 {activeTab === 'buy' ? '사기' : '팔기'}
+                        {selectedCurrency === 'USD' ? '달러' : '엔'} {activeTab === 'buy' ? '사기' : '팔기'}
                       </InputSuffixText>
                     </InputSuffix>
                   </InputWrapper>
@@ -450,11 +508,11 @@ export function ExchangePage() {
                 </ExchangeArrow>
 
                 <FormGroup>
-                  <FormLabel>필요 원화</FormLabel>
+                  <FormLabel>{activeTab === 'buy' ? '필요 원화' : '받을 금액'}</FormLabel>
                   <InputWrapper>
                     <ExchangeInput
                       type="text"
-                      value="42,530"
+                      value={quoteData ? formatNumber(quoteData.krwAmount, 0) : '0'}
                       readOnly
                       fullWidth
                     />
@@ -471,12 +529,20 @@ export function ExchangePage() {
               {/* 적용 환율 */}
               <ExchangeInfo>
                 <ExchangeInfoLabel>적용 환율</ExchangeInfoLabel>
-                <ExchangeInfoValue>1 USD = 1,320.50 원</ExchangeInfoValue>
+                <ExchangeInfoValue>
+                  1 {selectedCurrency} = {selectedRate ? formatNumber(selectedRate.rate, 2) : '0'} 원
+                </ExchangeInfoValue>
               </ExchangeInfo>
 
               {/* 환전하기 버튼 */}
-              <ExchangeButton variant="dark" size="lg" fullWidth>
-                환전하기
+              <ExchangeButton
+                variant="dark"
+                size="lg"
+                fullWidth
+                onClick={handleExchange}
+                disabled={orderMutation.isPending || !amount || parseFloat(amount) <= 0}
+              >
+                {orderMutation.isPending ? '환전 중...' : '환전하기'}
               </ExchangeButton>
             </ExchangeCard>
           </RightSection>
