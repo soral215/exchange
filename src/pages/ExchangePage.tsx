@@ -370,6 +370,14 @@ export function ExchangePage() {
     return () => clearTimeout(timer)
   }, [amount])
 
+  // 숫자 입력 검증
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value)
+    }
+  }
+
   // 환율 조회 (10초마다 자동 갱신)
   const { data: exchangeRates = [], isLoading: isLoadingRates } = useQuery({
     queryKey: ['exchangeRates'],
@@ -585,9 +593,10 @@ export function ExchangePage() {
                   <InputWrapper>
                     <ExchangeInput
                       type="text"
+                      inputMode="decimal"
                       placeholder="0"
                       value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      onChange={handleAmountChange}
                       fullWidth
                       error={!!amountError}
                     />
