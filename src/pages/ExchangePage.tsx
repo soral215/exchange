@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Header } from '@/components/organisms'
@@ -371,12 +371,12 @@ export function ExchangePage() {
   }, [amount])
 
   // 숫자 입력 검증
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setAmount(value)
     }
-  }
+  }, [])
 
   // 환율 조회 (10초마다 자동 갱신)
   const { data: exchangeRates = [], isLoading: isLoadingRates } = useQuery({
@@ -409,13 +409,13 @@ export function ExchangePage() {
   })
 
   // 지갑 잔액 가져오기
-  const getWalletBalance = (currency: string) => {
+  const getWalletBalance = useCallback((currency: string) => {
     const wallet = walletData?.wallets.find((w) => w.currency === currency)
     return wallet?.balance || 0
-  }
+  }, [walletData])
 
   // 금액 유효성 검사
-  const validateAmount = (): string | null => {
+  const amountError = useMemo(() => {
     const numAmount = parseFloat(amount)
     if (!amount || isNaN(numAmount) || numAmount <= 0) {
       return null // 아직 입력 전
@@ -444,9 +444,7 @@ export function ExchangePage() {
     }
 
     return null
-  }
-
-  const amountError = validateAmount()
+  }, [amount, selectedCurrency, activeTab, getWalletBalance, quoteData])
 
   // 환전 주문
   const orderMutation = useMutation({
@@ -468,7 +466,7 @@ export function ExchangePage() {
     },
   })
 
-  const handleExchange = async () => {
+  const handleExchange = useCallback(async () => {
     if (!selectedRate || !amount || parseFloat(amount) <= 0) {
       alert('금액을 입력해주세요.')
       return
@@ -511,7 +509,7 @@ export function ExchangePage() {
     } catch {
       alert('환율 정보를 가져오는데 실패했습니다.')
     }
-  }
+  }, [selectedRate, amount, selectedCurrency, activeTab, queryClient, orderMutation])
 
   return (
     <PageContainer>
