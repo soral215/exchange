@@ -397,7 +397,7 @@ export function ExchangePage() {
   const selectedRate = exchangeRates.find((rate) => rate.currency === selectedCurrency)
 
   // 견적 조회
-  const { data: quoteData } = useQuery({
+  const { data: quoteData, isFetching: isQuoteFetching } = useQuery({
     queryKey: ['quote', selectedCurrency, debouncedAmount, activeTab],
     queryFn: () =>
       orderService.getQuote({
@@ -635,12 +635,12 @@ export function ExchangePage() {
                   <InputWrapper>
                     <ExchangeInput
                       type="text"
-                      value={quoteData ? formatNumber(quoteData.krwAmount, 0) : '0'}
+                      value={isQuoteFetching ? '계산 중...' : (quoteData ? formatNumber(quoteData.krwAmount, 0) : '0')}
                       readOnly
                       fullWidth
                     />
                     <RequiredInputSuffix $isSell={activeTab === 'sell'}>
-                      {activeTab === 'buy' ? '원 필요해요' : '원 받을 수 있어요'}
+                      {isQuoteFetching ? '' : (activeTab === 'buy' ? '원 필요해요' : '원 받을 수 있어요')}
                     </RequiredInputSuffix>
                   </InputWrapper>
                 </FormGroup>
