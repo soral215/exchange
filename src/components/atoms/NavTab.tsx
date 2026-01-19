@@ -14,10 +14,12 @@ interface NavTabProps {
 
 const TabContainer = styled.nav`
   display: flex;
+  gap: 8px;
   align-items: center;
 `
 
 const TabButton = styled.button<{ $active: boolean }>`
+  width: 118px;
   background: transparent;
   border: none;
   padding: 8px 12px;

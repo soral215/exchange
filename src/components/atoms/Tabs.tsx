@@ -17,20 +17,21 @@ interface TabsProps {
 const TabsContainer = styled.div`
   display: flex;
   gap: 10px;
-  padding: 0 18px;
-  height: 59px;
+  padding: 12px;
   align-items: center;
   background: ${({ theme }) => theme.colors.background.primary};
-  border-radius: ${({ theme }) => theme.radius.md};
+  border-radius: 16px;
+  border: 1px solid #D0D6DB;
 `
 
 const TabButton = styled.button<{ $active: boolean; $type: TabType }>`
   flex: 1;
-  height: 43px;
+  height: 59px;
   border: none;
-  border-radius: ${({ theme }) => theme.radius.sm};
-  font-size: ${({ theme }) => theme.typography.fontSize.base};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  line-height: 1.33;
   font-family: inherit;
   cursor: pointer;
   transition: all ${({ theme }) => theme.transitions.fast};
@@ -40,8 +41,10 @@ const TabButton = styled.button<{ $active: boolean; $type: TabType }>`
     return $type === 'buy' ? theme.colors.up : theme.colors.primary;
   }};
   
-  color: ${({ $active, theme }) => 
-    $active ? theme.colors.text.inverse : theme.colors.text.secondary};
+  color: ${({ $active, $type, theme }) => {
+    if ($active) return theme.colors.text.inverse;
+    return $type === 'buy' ? '#FFA7A7' : '#9DB6FF';
+  }};
   
   box-shadow: ${({ $active }) => 
     $active ? '2px 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};

@@ -8,7 +8,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 const StyledInput = styled.input<{ $error?: boolean; $fullWidth?: boolean }>`
   height: 75px;
-  padding: 0 20px;
+  padding: 0 24px;
   font-size: ${({ theme }) => theme.typography.fontSize.xl};
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   font-family: inherit;
@@ -40,6 +40,16 @@ const StyledInput = styled.input<{ $error?: boolean; $fullWidth?: boolean }>`
   &:disabled {
     background: ${({ theme }) => theme.colors.background.tertiary};
     cursor: not-allowed;
+  }
+
+  &:read-only {
+    background: #F1F2F4;
+    border-color: #ACB4BB;
+    cursor: default;
+  }
+
+  &:read-only:focus {
+    border-color: #ACB4BB;
   }
 `
 
