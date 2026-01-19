@@ -9,6 +9,7 @@ export interface ValidationErrorData {
 }
 
 export type ApiErrorCode =
+  | 'OK'
   | 'BAD_REQUEST'
   | 'NOT_FOUND'
   | 'UNAUTHORIZED'
@@ -19,6 +20,7 @@ export type ApiErrorCode =
   | 'INVALID_WITHDRAW_AMOUNT'
   | 'CURRENCY_MISMATCH'
   | 'INVALID_AMOUNT_SCALE'
+  | 'EXCHANGE_RATE_MISMATCH'
   | 'EXCHANGE_RATE_CURRENCY_MISMATCH'
   | 'UNSUPPORTED_FOREX_CONVERSION_CURRENCY'
   | 'INVALID_EXCHANGE_RATE_CURRENCY'

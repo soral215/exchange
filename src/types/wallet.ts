@@ -1,11 +1,15 @@
+// 통화 코드 타입
 export type CurrencyCode = 'KRW' | 'USD' | 'JPY'
 
-export interface WalletBalance {
-  currency: CurrencyCode
-  amount: number
+// 지갑 응답 DTO
+export interface WalletResponse {
+  walletId: number
+  currency: string
+  balance: number
 }
 
-export interface Wallet {
-  walletId: number
-  balances: WalletBalance[]
+// 지갑 요약 응답 DTO
+export interface WalletSummaryResponse {
+  totalKrwBalance: number
+  wallets: WalletResponse[]
 }

@@ -1,2 +1,5 @@
 export { apiClient } from './client'
 export { authService } from './auth'
+export { exchangeRateService } from './exchangeRate'
+export { walletService } from './wallet'
+export { orderService } from './order'

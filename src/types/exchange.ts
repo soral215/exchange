@@ -1,34 +1,40 @@
-import type { CurrencyCode } from './wallet'
-
-export interface ExchangeRate {
-  currency: CurrencyCode
+// 환율 응답 DTO
+export interface ExchangeRateResponse {
+  exchangeRateId: number
+  currency: string
   rate: number
-  timestamp: string
+  changePercentage: number
+  applyDateTime: string
 }
 
-export interface QuoteRequest {
-  fromCurrency: CurrencyCode
-  toCurrency: CurrencyCode
-  amount: number
+// 환전 주문 요청 DTO
+export interface OrderRequest {
+  exchangeRateId: number
+  fromCurrency: string
+  toCurrency: string
+  forexAmount: number
 }
 
-export interface QuoteResponse {
-  quoteId: string
-  fromCurrency: CurrencyCode
-  toCurrency: CurrencyCode
-  fromAmount: number
-  toAmount: number
-  rate: number
-  expiresAt: string
-}
-
-export interface ExchangeOrder {
+// 환전 주문 응답 DTO
+export interface OrderResponse {
   orderId: number
-  fromCurrency: CurrencyCode
-  toCurrency: CurrencyCode
+  fromCurrency: string
   fromAmount: number
+  toCurrency: string
   toAmount: number
-  rate: number
-  status: 'COMPLETED' | 'PENDING' | 'FAILED'
-  createdAt: string
+  appliedRate: number
+  orderedAt: string
+}
+
+// 환전 주문 견적 요청 DTO
+export interface OrderQuoteRequest {
+  fromCurrency: string
+  toCurrency: string
+  forexAmount: number
+}
+
+// 환전 주문 견적 응답 DTO
+export interface OrderQuoteResponse {
+  krwAmount: number
+  appliedRate: number
 }
