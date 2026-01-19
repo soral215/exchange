@@ -18,7 +18,12 @@ export const orderService = {
   createOrder: async (request: OrderRequest): Promise<string> => {
     const response = await apiClient.post<ApiResponse<string>>(
       '/orders',
-      request
+      request,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     )
     return response.data.data
   },
