@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { Text, Button, Input, Card } from '@/components/atoms'
+import { Text, Button, Input, Card, AppIcon } from '@/components/atoms'
 import { useAuthStore } from '@/stores'
 import { authService } from '@/services'
 
@@ -25,12 +25,6 @@ const IconWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 24px;
-`
-
-const Icon = styled.div`
-  width: 56px;
-  height: 56px;
-  color: ${({ theme }) => theme.colors.primary};
 `
 
 const Title = styled(Text)`
@@ -100,20 +94,7 @@ export function LoginPage() {
     <Container>
       <LoginCard>
         <IconWrapper>
-          <Icon>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              width="100%"
-              height="100%"
-            >
-              <path d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-            </svg>
-          </Icon>
+          <AppIcon size={56} />
         </IconWrapper>
 
         <Title variant="title">반갑습니다.</Title>

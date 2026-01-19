@@ -13,8 +13,11 @@ export const theme = {
     warning: '#F59E0B',
     warningLight: '#FEF3C7',
     
-    error: '#EF4444',
+    error: '#FE5050',
     errorLight: '#FEE2E2',
+    
+    up: '#FE5050',
+    down: '#3B6EFF',
     
     text: {
       primary: '#374553',
