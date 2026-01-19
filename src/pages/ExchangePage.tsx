@@ -371,12 +371,12 @@ export function ExchangePage() {
       queryClient.invalidateQueries({ queryKey: ['wallets'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
     },
-    onError: (error: Error & { response?: { data?: { code?: string } } }) => {
+    onError: (error: Error & { response?: { data?: { code?: string; message?: string } } }) => {
+      const errorMessage = error.response?.data?.message || '환전에 실패했습니다. 다시 시도해주세요.'
+      alert(errorMessage)
+      
       if (error.response?.data?.code === 'EXCHANGE_RATE_MISMATCH') {
-        alert('환율이 변경되었습니다. 다시 시도해주세요.')
         queryClient.invalidateQueries({ queryKey: ['exchangeRates'] })
-      } else {
-        alert('환전에 실패했습니다. 다시 시도해주세요.')
       }
     },
   })
@@ -480,7 +480,6 @@ export function ExchangePage() {
                       fullWidth
                     />
                     <InputSuffix>
-                      <InputSuffixNumber>{amount || '0'}</InputSuffixNumber>
                       <InputSuffixText>
                         {selectedCurrency === 'USD' ? '달러' : '엔'} {activeTab === 'buy' ? '사기' : '팔기'}
                       </InputSuffixText>
