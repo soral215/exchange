@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Header } from '@/components/organisms'
-import { Text } from '@/components/atoms'
+import { Text, SpinnerFullPage } from '@/components/atoms'
 import { orderService } from '@/services'
 import { formatNumber } from '@/utils'
 
@@ -121,6 +121,7 @@ export function HistoryPage() {
 
   return (
     <PageContainer>
+      {isLoading && <SpinnerFullPage />}
       <Header />
       <ContentWrapper>
         <TitleSection>
@@ -143,13 +144,7 @@ export function HistoryPage() {
                 </TableHeaderRow>
               </TableHead>
               <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5}>
-                      <EmptyMessage>로딩 중...</EmptyMessage>
-                    </TableCell>
-                  </TableRow>
-                ) : orders.length === 0 ? (
+                {orders.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5}>
                       <EmptyMessage>환전 내역이 없습니다.</EmptyMessage>

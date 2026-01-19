@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Header } from '@/components/organisms'
-import { Text, Card, Badge, Tabs, Button, Input, Dropdown } from '@/components/atoms'
+import { Text, Card, Badge, Tabs, Button, Input, Dropdown, SpinnerFullPage } from '@/components/atoms'
 import { exchangeRateService, walletService, orderService } from '@/services'
 import { formatNumber } from '@/utils'
 import usFlag from '@/assets/flags/us.svg'
@@ -344,17 +344,19 @@ export function ExchangePage() {
   }, [amount])
 
   // 환율 조회 (10초마다 자동 갱신)
-  const { data: exchangeRates = [] } = useQuery({
+  const { data: exchangeRates = [], isLoading: isLoadingRates } = useQuery({
     queryKey: ['exchangeRates'],
     queryFn: exchangeRateService.getLatest,
     refetchInterval: 10000,
   })
 
   // 지갑 조회
-  const { data: walletData } = useQuery({
+  const { data: walletData, isLoading: isLoadingWallet } = useQuery({
     queryKey: ['wallets'],
     queryFn: walletService.getWallets,
   })
+
+  const isLoading = isLoadingRates || isLoadingWallet
 
   // 선택된 통화의 환율 정보
   const selectedRate = exchangeRates.find((rate) => rate.currency === selectedCurrency)
@@ -478,6 +480,7 @@ export function ExchangePage() {
 
   return (
     <PageContainer>
+      {isLoading && <SpinnerFullPage />}
       <Header />
 
       <ContentWrapper>
