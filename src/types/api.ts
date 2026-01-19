@@ -25,3 +25,16 @@ export type ApiErrorCode =
   | 'UNSUPPORTED_FOREX_CONVERSION_CURRENCY'
   | 'INVALID_EXCHANGE_RATE_CURRENCY'
   | 'UNSUPPORTED_CURRENCY_FOR_KRW_CONVERSION'
+
+export interface ApiErrorResponse {
+  code: ApiErrorCode
+  message: string
+  data: null
+}
+
+export interface ApiError extends Error {
+  response?: {
+    data?: ApiErrorResponse
+    status?: number
+  }
+}

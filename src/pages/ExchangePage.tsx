@@ -5,6 +5,7 @@ import { Header } from '@/components/organisms'
 import { Text, Card, Badge, Tabs, Button, Input, Dropdown, SpinnerFullPage } from '@/components/atoms'
 import { exchangeRateService, walletService, orderService } from '@/services'
 import { formatNumber } from '@/utils'
+import type { ApiError } from '@/types'
 import usFlag from '@/assets/flags/us.svg'
 import jpFlag from '@/assets/flags/jp.svg'
 
@@ -456,7 +457,7 @@ export function ExchangePage() {
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['exchangeRates'] })
     },
-    onError: (error: Error & { response?: { data?: { code?: string; message?: string } } }) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.message || '환전에 실패했습니다. 다시 시도해주세요.'
       alert(errorMessage)
       
